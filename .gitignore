@@ -1,0 +1,21 @@
+# ===============================
+# Spring Boot config
+# ===============================
+application.properties
+application-local.properties
+
+backend/src/main/resources/application.properties
+backend/src/main/resources/application-local.properties
+
+# ===============================
+# React
+# ===============================
+node_modules/
+build/
+dist/
+.env
+
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
