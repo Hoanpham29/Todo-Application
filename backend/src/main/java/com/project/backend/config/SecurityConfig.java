@@ -54,11 +54,15 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChai(HttpSecurity http) throws Exception{
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(configurer ->
                 configurer
                         .requestMatchers("/api/auth/**", "/swagger-ui/**","/v3/api-docs/**",
-                                            "/swagger-resources/**", "/web-jars/**","/docs").permitAll());
+                                            "/swagger-resources/**", "/web-jars/**","/docs").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .anyRequest().permitAll()
+        );
+
 
         http.csrf(csrf -> csrf.disable());
 

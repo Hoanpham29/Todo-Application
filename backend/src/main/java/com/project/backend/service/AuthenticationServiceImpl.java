@@ -86,5 +86,4 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         return userRepsitory.findByEmail(email).isPresent();
     }
     
-    
 }

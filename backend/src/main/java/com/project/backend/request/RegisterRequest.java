@@ -7,11 +7,11 @@ import jakarta.validation.constraints.Size;
 public class RegisterRequest {
 
     @NotEmpty(message = "First name is mandatory")
-    @Size(min = 5, max = 30, message = "First name must be at least 5 characters long")
+    @Size(min = 3, max = 30, message = "First name must be at least 5 characters long")
     private String firstName;
 
     @NotEmpty(message = "Last name is mandatory")
-    @Size(min = 5, max = 30, message = "Last name must be at least 5 characters long")
+    @Size(min = 3, max = 30, message = "Last name must be at least 5 characters long")
     private String lastName;
 
     @NotEmpty(message = "Email is mandatory")
