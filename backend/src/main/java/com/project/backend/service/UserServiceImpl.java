@@ -68,6 +68,11 @@ public class UserServiceImpl implements UserService{
                 passwordUpdateRequest.getNewPassword())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Old & new Password mus be different");
         }
+
+        user.setPassword(passwordEncoder.encode(passwordUpdateRequest.getNewPassword()));
+
+        userRepsitory.save(user);
+
     }
 
     private boolean isPasswordDifferent(String oldPassword, String newPassword) {
