@@ -1,6 +1,9 @@
 package com.project.backend.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "todos")
@@ -23,6 +26,9 @@ public class Todo {
     @Column(nullable = false)
     private boolean complete;
 
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
@@ -37,6 +43,10 @@ public class Todo {
         this.priority = priority;
         this.complete = complete;
         this.owner = owner;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
     public long getId() {

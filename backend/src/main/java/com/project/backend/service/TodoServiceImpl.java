@@ -37,6 +37,21 @@ public class TodoServiceImpl implements TodoService{
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public TodoResponse findById(long id) {
+
+        User currentUser = findAuthenticatedUser.getAuthenticatedUser();
+
+        Optional<Todo> todo = todoRepository.findByIdAndOwner(id, currentUser);
+
+        if(todo.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Todo not found");
+        }
+
+        return convertTodoResponse(todo.get());
+    }
+
+    @Override
     @Transactional
     public TodoResponse createTodo(TodoRequest request) {
         User currentUser = findAuthenticatedUser.getAuthenticatedUser();
@@ -72,18 +87,23 @@ public class TodoServiceImpl implements TodoService{
     public TodoResponse updateTodo(long id, TodoRequest todoRequest) {
         User currentUser = findAuthenticatedUser.getAuthenticatedUser();
 
-        Optional<Todo> todo = todoRepository.findByIdAndOwner(id,currentUser);
+        Todo todo = todoRepository.findByIdAndOwner(id, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todo not found"));
 
-        if(todo.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todo not found");
+        if (todoRequest.getTitle() != null) {
+            todo.setTitle(todoRequest.getTitle());
         }
 
-        todo.get().setTitle(todoRequest.getTitle());
-        todo.get().setDescription(todoRequest.getDescription());
-        todo.get().setPriority(todoRequest.getPriority());
+        if (todoRequest.getDescription() != null) {
+            todo.setDescription(todoRequest.getDescription());
+        }
 
-        Todo saveTodo = todoRepository.save(todo.get());
-        return convertTodoResponse(saveTodo);
+        if (todoRequest.getPriority() != 0) {
+            todo.setPriority(todoRequest.getPriority());
+        }
+
+        Todo savedTodo = todoRepository.save(todo);
+        return convertTodoResponse(savedTodo);
     }
 
     @Override
@@ -106,7 +126,8 @@ public class TodoServiceImpl implements TodoService{
                 todo.getTitle(),
                 todo.getDescription(),
                 todo.getPriority(),
-                todo.isComplete()
+                todo.isComplete(),
+                todo.getCreatedAt()
         );
     }
 }

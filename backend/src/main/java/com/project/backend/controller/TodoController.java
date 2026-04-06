@@ -33,9 +33,16 @@ public class TodoController {
         return todoService.findAll();
     }
 
+    @Operation(summary = "Find todo", description = "Find todo by ID")
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/{id}")
+    public TodoResponse findByid(@Min(1) @PathVariable long id){
+        return todoService.findById(id);
+    }
+
     @Operation(summary = "Create todo for user", description = "Create new todo for sign in")
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/create")
+    @PostMapping()
     public TodoResponse createTodo(@Valid @RequestBody TodoRequest todoRequest){
         return todoService.createTodo(todoRequest);
     }
@@ -56,10 +63,10 @@ public class TodoController {
 
     @Operation(summary = "Update todo", description = "Update todo details for login user")
     @ResponseStatus(HttpStatus.OK)
-    @PutMapping("/update/{id}")
+    @PatchMapping("/{id}")
     public TodoResponse updateTodo(
             @Min(1) @PathVariable long id,
-            @Valid @RequestBody TodoRequest todoRequest){
+            @RequestBody TodoRequest todoRequest){
         return todoService.updateTodo(id,todoRequest);
     }
 }
