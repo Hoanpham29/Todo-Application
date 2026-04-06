@@ -1,30 +1,46 @@
 import { useState } from "react";
 import { TodoModel } from "../../../models/TodoModel";
+import { useHistory } from "react-router-dom";
 
 export const TodoItem: React.FC<{ todo: TodoModel; onSuccess: Function }> = (props) => {
 
     const collapseId = `todo-${props.todo.id}`;
 
-    const [checked, setChecked] = useState(props.todo.completed);
+    const [checked, setChecked] = useState(props.todo.complete);
+    const history = useHistory();
 
     const handleToggle = async () => {
         const newValue = !checked;
 
         setChecked(newValue);
 
+        const token = localStorage.getItem("token");
+
+            if (!token) {
+                history.push("/login");
+                return;
+            }
+
         try {
             const response = await fetch(
-                `http://localhost:8080/api/todos/${props.todo.id}`,
+                `http://localhost:8080/api/todos/toggleComplete/${props.todo.id}`,
                 {
-                    method: "PATCH",
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         completed: newValue,
                     }),
                 }
             );
+
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error("Update failed");
@@ -39,13 +55,29 @@ export const TodoItem: React.FC<{ todo: TodoModel; onSuccess: Function }> = (pro
     };
 
     const submitDelete = async () =>{
+        const token = localStorage.getItem("token");
+
+            if (!token) {
+                history.push("/login");
+                return;
+            }
+        
         try {
             const response = await fetch(
                 `http://localhost:8080/api/todos/${props.todo.id}`,
                 {
                     method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    },
                 }
             );
+
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error("Update failed");

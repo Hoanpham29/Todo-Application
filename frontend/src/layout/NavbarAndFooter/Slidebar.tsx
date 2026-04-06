@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { TodoModel } from "../../models/TodoModel";
+import { useHistory } from "react-router-dom";
 import { SpinnerLoading } from "../Utils/SpinnerLoading";
 import { Link } from "react-router-dom";
 
@@ -10,10 +11,13 @@ export const Slidebar: React.FC<{ open: boolean; refresh: boolean }> = ({ open, 
 
   const [isLoading, setIsLoading] = useState(true);
   const [httpError, setHttpError] = useState<any>(null);
+  
+  const history = useHistory();
 
   const formatTodoDate = (createdAt: string | any): string => {
     const date = new Date(createdAt);
     const today = new Date();
+
 
     if (date.toDateString() === today.toDateString()) {
       return "Today";
@@ -27,22 +31,35 @@ export const Slidebar: React.FC<{ open: boolean; refresh: boolean }> = ({ open, 
 
   useEffect(() => {
     const fetchTodos = async () => {
-      try {
-        const response = await fetch("http://localhost:8080/api/todos");
+      const token = localStorage.getItem("token");
 
-        if (!response.ok) {
-          throw new Error("Something went wrong!");
-        }
+            if (!token) {
+                history.push("/login");
+                return;
+            }
 
-        const data = await response.json();
-        setTodos(data);
+            try {
+                const response = await fetch("http://localhost:8080/api/todos", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
 
-      } catch (error: any) {
-        setHttpError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+                if (!response.ok) {
+                    throw new Error('Something went wrong!');
+                }
+
+                const data = await response.json();
+                setTodos(data);
+
+            } catch (error: any) {
+                setHttpError(error.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
     fetchTodos();
 
@@ -103,7 +120,7 @@ export const Slidebar: React.FC<{ open: boolean; refresh: boolean }> = ({ open, 
             >
               <div className="d-flex justify-content-between">
                 <strong>{todo.title}</strong>
-                <small>{formatTodoDate(todo.createdAt)}</small>
+                <small>{formatTodoDate(todo.created_at)}</small>
               </div>
               <div className="small">{todo.description}</div>
             </Link>

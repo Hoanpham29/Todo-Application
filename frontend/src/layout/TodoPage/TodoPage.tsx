@@ -3,7 +3,7 @@ import { TodoModel } from "../../models/TodoModel"
 import { SpinnerLoading } from "../Utils/SpinnerLoading";
 import { useParams } from "react-router-dom";
 
-export const TodoPage:React.FC<{setRefresh: React.Dispatch<React.SetStateAction<boolean>>}> = ({setRefresh}) => {
+export const TodoPage: React.FC<{ setRefresh: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setRefresh }) => {
     const [todo, setTodo] = useState<TodoModel>();
 
     const [isLoading, setIsLoading] = useState(true);
@@ -14,36 +14,40 @@ export const TodoPage:React.FC<{setRefresh: React.Dispatch<React.SetStateAction<
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [title, setTitle] = useState(todo?.title || "");
 
+    const [priority, setPriority] = useState(todo?.priority || 0);
+
     const [isEditingDescription, setIsEditingDescription] = useState(false);
     const [description, setDescription] = useState(todo?.description || "");
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const handleSave = async () => {
-        let body: any = {};
+        const token = localStorage.getItem("token");
 
-        if (isEditingTitle) {
-            body.title = title;
-        }
+        const body: Partial<TodoModel> = {};
 
-        if (isEditingDescription) {
-            body.description = description;
-        }
+        if (isEditingTitle) body.title = title;
+        if (isEditingDescription) body.description = description;
+        body.priority = priority;
 
         try {
-            await fetch(`http://localhost:8080/api/todos/${id}`, {
+            const response = await fetch(`http://localhost:8080/api/todos/${id}`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json", },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
                 body: JSON.stringify(body)
             });
-            
+
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+                return;
+            }
+
             setTodo(prev =>
-                prev
-                    ? {
-                        ...prev,
-                        ...body,
-                    }
-                    : prev
+                prev ? { ...prev, ...body } : prev
             );
 
             setRefresh(prev => !prev);
@@ -56,28 +60,44 @@ export const TodoPage:React.FC<{setRefresh: React.Dispatch<React.SetStateAction<
 
     useEffect(() => {
         const fetchTodos = async () => {
-            const response = await fetch(`http://localhost:8080/api/todos/${id}`);
+            const token = localStorage.getItem("token");
 
-            if (!response.ok) {
-                throw new Error("Some thing went wrong!");
+            try {
+                const response = await fetch(`http://localhost:8080/api/todos/${id}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    window.location.href = "/login";
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error("Something went wrong!");
+                }
+
+                const data = await response.json();
+
+                setTodo(data);
+
+            } catch (error: any) {
+                setHttpError(error.message);
+            } finally {
+                setIsLoading(false);
             }
-
-            const data = await response.json();
-            
-            setTodo(data);
-            setIsLoading(false);
         };
 
-        fetchTodos().catch((error: any) => {
-            setIsLoading(false);
-            setHttpError(error.message);
-        })
-    }, [id])
+        fetchTodos();
+    }, [id]);
 
     useEffect(() => {
         if (todo) {
             setTitle(todo.title);
             setDescription(todo.description);
+            setPriority(todo.priority);
         }
     }, [todo]);
 
@@ -99,6 +119,37 @@ export const TodoPage:React.FC<{setRefresh: React.Dispatch<React.SetStateAction<
         }
     }, [isEditingDescription, description]);
 
+    const updatePriority = async (value: number) => {
+        const token = localStorage.getItem("token");
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/todos/${id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    priority: value
+                })
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+                return;
+            }
+
+            setPriority(value);
+            setTodo(prev => prev ? { ...prev, priority: value } : prev);
+
+            setRefresh(prev => !prev);
+
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     if (isLoading) {
         return <SpinnerLoading />
     }
@@ -111,44 +162,105 @@ export const TodoPage:React.FC<{setRefresh: React.Dispatch<React.SetStateAction<
         <div className='mt-5 container w-75'>
             {todo ? (
                 <>
-                    {isEditingTitle ? (
-                        <input
-                            placeholder="Title..."
-                            type="text"
-                            className="form-control border-1 border-secondary border-opacity-25 shadow pb-2 pt-2 fw-medium"
-                            style={{
-                                fontSize: "3rem",
-                                lineHeight: "1.3",
-                                width: "100%",
-                                outline: "none",
-                            }}
-                            value={title}
-                            autoFocus
-                            onChange={(e) => setTitle(e.target.value)}
-                            onBlur={handleSave}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") handleSave();
-                            }}
-                        />
-                    ) : (
-                        <h1
-                        aria-placeholder="Title..."
-                         className="form-control border-0 pb-2 pt-2 fw-medium bg-transparent"
-                            style={{
-                                fontSize: "3rem",
-                                lineHeight: "1.3",
-                                margin: 0,
-                                color: title ? "black" : "#999",
-                                cursor: "pointer",
-                                wordBreak: "break-word",
-                                overflowWrap: "break-word"
-                            }}
-                            onClick={() => { setIsEditingTitle(true); autoResize() }}
+                    <div className="d-flex justify-content-between">
+                        {isEditingTitle ? (
+                            <input
+                                placeholder="Title..."
+                                type="text"
+                                className="form-control border-1 border-secondary border-opacity-25 shadow pb-2 pt-2 fw-medium"
+                                style={{
+                                    fontSize: "3rem",
+                                    lineHeight: "1.3",
+                                    width: "100%",
+                                    outline: "none",
+                                }}
+                                value={title}
+                                autoFocus
+                                onChange={(e) => setTitle(e.target.value)}
+                                onBlur={handleSave}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleSave();
+                                }}
+                            />
+                        ) : (
+                            <h1
+                                aria-placeholder="Title..."
+                                className="form-control border-0 pb-2 pt-2 fw-medium bg-transparent"
+                                style={{
+                                    fontSize: "3rem",
+                                    lineHeight: "1.3",
+                                    margin: 0,
+                                    color: title ? "black" : "#999",
+                                    cursor: "pointer",
+                                    wordBreak: "break-word",
+                                    overflowWrap: "break-word",
+                                    width: 775
+                                }}
+                                onClick={() => { setIsEditingTitle(true); autoResize() }}
 
-                        >
-                            {title || "Title..."}
-                        </h1>
-                    )}
+                            >
+                                {title}
+                            </h1>
+                        )}
+
+                        <div className="dropdown dropdown-menu-end align-content-center">
+                            <div className="d-flex align-items-center">
+
+                                <button
+                                    className="btn bg-secondary bg-opacity-10"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                >
+                                    <span style={{ fontSize: 20 }}> {priority} </span>
+                                </button>
+                                <ul className="dropdown-menu" style={{ minWidth: "110px", width: "110px" }}>
+                                    <li>
+                                        <button
+                                            className={`dropdown-item ${priority === 1 ? "active" : ""}`}
+                                            onClick={() => updatePriority(1)}
+                                        >
+                                            1
+                                        </button>
+                                    </li>
+
+                                    <li>
+                                        <button
+                                            className={`dropdown-item ${priority === 2 ? "active" : ""}`}
+                                            onClick={() => updatePriority(2)}
+                                        >
+                                            2
+                                        </button>
+                                    </li>
+
+                                    <li>
+                                        <button
+                                            className={`dropdown-item ${priority === 3 ? "active" : ""}`}
+                                            onClick={() => updatePriority(3)}
+                                        >
+                                            3
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            className={`dropdown-item ${priority === 4 ? "active" : ""}`}
+                                            onClick={() => updatePriority(4)}
+                                        >
+                                            4
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button
+                                            className={`dropdown-item ${priority === 5 ? "active" : ""}`}
+                                            onClick={() => updatePriority(5)}
+                                        >
+                                            5
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
                     <div className="mt-1">
                         {isEditingDescription ? (
                             <textarea
@@ -186,7 +298,7 @@ export const TodoPage:React.FC<{setRefresh: React.Dispatch<React.SetStateAction<
                                 }}
                                 onClick={() => setIsEditingDescription(true)}
                             >
-                                {description || "Desciption..."}
+                                {description}
                             </span>
                         )}
                     </div>
