@@ -1,20 +1,21 @@
 export class TodoModel {
   id: number;
   title: string;
+  priority: number;
   description: string;
-  completed: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  userId?: number;
+  complete: boolean;
+  created_at?: string;
+  user_id?: number;
 
-  constructor(id: number, title: string, description: string, completed: boolean,
-    createdAt: string, updatedAt: string, userId: number){
+
+  constructor(id: number, title: string, description: string, complete: boolean, priority: number,
+    created_at: string, user_id: number){
         this.id = id,
         this.title = title,
+        this.priority = priority,
         this.description = description,
-        this.completed = completed,
-        this.createdAt = createdAt,
-        this.updatedAt = updatedAt,
-        this.userId = userId
+        this.complete = complete,
+        this.created_at = created_at,
+        this.user_id = user_id
     }
 }
