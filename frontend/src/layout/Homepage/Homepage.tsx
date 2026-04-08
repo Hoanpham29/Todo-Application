@@ -41,6 +41,7 @@ export const HomePage: React.FC<{
                 }
 
                 if (!response.ok) {
+                    history.push("/login");
                     throw new Error('Something went wrong!');
                 }
 

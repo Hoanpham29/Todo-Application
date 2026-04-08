@@ -171,7 +171,8 @@ export const TodoPage: React.FC<{ setRefresh: React.Dispatch<React.SetStateActio
                                 style={{
                                     fontSize: "3rem",
                                     lineHeight: "1.3",
-                                    width: "100%",
+                                    borderRadius: 10,
+                                    width: "91%",
                                     outline: "none",
                                 }}
                                 value={title}
@@ -185,16 +186,17 @@ export const TodoPage: React.FC<{ setRefresh: React.Dispatch<React.SetStateActio
                         ) : (
                             <h1
                                 aria-placeholder="Title..."
-                                className="form-control border-0 pb-2 pt-2 fw-medium bg-transparent"
+                                className="form-control border-0 pb-2 pt-2 fw-medium bg-dark bg-opacity-10"
                                 style={{
                                     fontSize: "3rem",
                                     lineHeight: "1.3",
                                     margin: 0,
+                                    borderRadius: 10,
                                     color: title ? "black" : "#999",
                                     cursor: "pointer",
                                     wordBreak: "break-word",
                                     overflowWrap: "break-word",
-                                    width: 775
+                                    width: "91%"
                                 }}
                                 onClick={() => { setIsEditingTitle(true); autoResize() }}
 
@@ -207,13 +209,15 @@ export const TodoPage: React.FC<{ setRefresh: React.Dispatch<React.SetStateActio
                             <div className="d-flex align-items-center">
 
                                 <button
-                                    className="btn bg-secondary bg-opacity-10"
+                                    className="btn bg-secondary bg-opacity-10 p-3"
+                                    style={{ minWidth: "60px", width: "60px", borderRadius: 10, }}
                                     type="button"
                                     data-bs-toggle="dropdown"
                                 >
-                                    <span style={{ fontSize: 20 }}> {priority} </span>
+                                    <span style={{ fontSize: 30 }}> {priority} </span>
                                 </button>
-                                <ul className="dropdown-menu" style={{ minWidth: "110px", width: "110px" }}>
+
+                                <ul className="dropdown-menu" style={{ minWidth: "60px", width: "60px" }}>
                                     <li>
                                         <button
                                             className={`dropdown-item ${priority === 1 ? "active" : ""}`}
@@ -257,6 +261,7 @@ export const TodoPage: React.FC<{ setRefresh: React.Dispatch<React.SetStateActio
                                         </button>
                                     </li>
                                 </ul>
+                                
                             </div>
                         </div>
 
@@ -267,11 +272,12 @@ export const TodoPage: React.FC<{ setRefresh: React.Dispatch<React.SetStateActio
                                 placeholder="Desciption..."
                                 ref={textareaRef}
                                 rows={1}
-                                className="form-control border-1 border-secondary border-opacity-25 shadow p-3 "
+                                className="mt-3 form-control border-1 border-secondary border-opacity-25 shadow p-3 "
                                 style={{
                                     fontSize: "1.5rem",
                                     lineHeight: "1.3",
-                                    width: "100%",
+                                    maxHeight: 500, minHeight:500,
+                                    borderRadius: 10,
                                     outline: "none",
                                     resize: "none",
                                     overflow: "hidden"
@@ -285,11 +291,13 @@ export const TodoPage: React.FC<{ setRefresh: React.Dispatch<React.SetStateActio
                                 onBlur={handleSave}
                             />
                         ) : (
-                            <span className="form-control border-0 shadow-none p-3 bg-transparent"
+                            <span className="form-control border-0 shadow-none p-3 bg-dark bg-opacity-10 mt-3"
                                 style={{
                                     fontSize: "1.5rem",
                                     lineHeight: "1.3",
+                                    maxHeight: 500, minHeight:500,
                                     margin: 0,
+                                    borderRadius: 10,
                                     color: description ? "black" : "#999",
                                     cursor: "pointer",
                                     whiteSpace: "pre-wrap",

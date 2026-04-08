@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 export const TodoItem: React.FC<{ todo: TodoModel; onSuccess: Function }> = (props) => {
 
     const collapseId = `todo-${props.todo.id}`;
-
+    const [priority, setPriority] = useState(props.todo.priority);
     const [checked, setChecked] = useState(props.todo.complete);
     const history = useHistory();
 
@@ -16,10 +16,10 @@ export const TodoItem: React.FC<{ todo: TodoModel; onSuccess: Function }> = (pro
 
         const token = localStorage.getItem("token");
 
-            if (!token) {
-                history.push("/login");
-                return;
-            }
+        if (!token) {
+            history.push("/login");
+            return;
+        }
 
         try {
             const response = await fetch(
@@ -54,14 +54,14 @@ export const TodoItem: React.FC<{ todo: TodoModel; onSuccess: Function }> = (pro
         }
     };
 
-    const submitDelete = async () =>{
+    const submitDelete = async () => {
         const token = localStorage.getItem("token");
 
-            if (!token) {
-                history.push("/login");
-                return;
-            }
-        
+        if (!token) {
+            history.push("/login");
+            return;
+        }
+
         try {
             const response = await fetch(
                 `http://localhost:8080/api/todos/${props.todo.id}`,
@@ -126,20 +126,39 @@ export const TodoItem: React.FC<{ todo: TodoModel; onSuccess: Function }> = (pro
 
                     </div>
 
-                    <input
-                        type="checkbox"
-                        className="btn-check"
-                        checked={checked}
-                        id={`delete-${props.todo.id}`}
-                        onClick={() => submitDelete()}
-                    />
-                    <label
-                        className="btn btn-outline-danger d-flex 
-                        align-items-center justify-content-center"
-                        htmlFor={`delete-${props.todo.id}`}
-                    >
-                        <i className="bi bi-trash"></i>
-                    </label>
+                    <div className="btn-group">
+
+                        <div className="btn-group">
+                            <button
+                                className="btn btn-outline-secondary"
+                                style={{ minWidth: "40px", borderRight: "0", borderRadius: "0"}}
+                                data-bs-toggle="dropdown"
+                            >
+                                {priority}
+                            </button>
+
+                            <ul className="dropdown-menu" style={{ minWidth: "80px"}}>
+                                {[1, 2, 3, 4, 5].map((p) => (
+                                    <li key={p}>
+                                        <button
+                                            className={`dropdown-item ${priority === p ? "active bg-secondary" : ""}`}
+                                            onClick={() => setPriority(p)}
+                                        >
+                                            {p}
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <button
+                            className="btn btn-outline-danger"
+                            onClick={submitDelete}
+                        >
+                            <i className="bi bi-trash"></i>
+                        </button>
+
+                    </div>
 
                 </div>
 

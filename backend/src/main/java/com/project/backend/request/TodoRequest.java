@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Size;
 
 public class TodoRequest {
 
-    @Size(min = 3, max = 50, message = "Title must be at least 3 characters long")
+    @Size(min = 3, max = 500, message = "Title must be at least 3 characters long")
     private String title;
 
-    @Size(min = 3, max = 50, message = "Title must be at least 3 characters long")
+    @Size(min = 3, max = 500, message = "Title must be at least 3 characters long")
     private String description;
 
     @Min(1)

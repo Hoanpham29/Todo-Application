@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ public class TodoServiceImpl implements TodoService{
 
         return todoRepository.findByOwner(currentUser)
                 .stream()
+                .sorted(Comparator.comparing(Todo::getCreatedAt).reversed())
                 .map(this::convertTodoResponse)
                 .toList();
     }

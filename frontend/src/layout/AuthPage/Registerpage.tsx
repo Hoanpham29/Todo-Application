@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { SpinnerLoading } from "../Utils/SpinnerLoading";
 
-export const LoginPage = () => {
+export const RegisterPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -15,23 +19,19 @@ export const LoginPage = () => {
         setError(null);
 
         try {
-            const response = await fetch("http://localhost:8080/api/auth/login", {
+            const response = await fetch("http://localhost:8080/api/auth/register", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, firstName, lastName }),
             });
 
             if (!response.ok) {
-                throw new Error("Email hoặc mật khẩu không đúng!");
+                throw new Error("Có lỗi xảy ra, vui lòng thử lại!");
             }
 
-            const data = await response.json();
-
-            localStorage.setItem("token", data.token);
-
-            history.push("/");
+            history.push("/login");
 
         } catch (err: any) {
             setError(err.message);
@@ -43,7 +43,7 @@ export const LoginPage = () => {
     return (
         <div className="d-flex justify-content-center align-items-center vh-100 bg-secondary bg-opacity-10">
             <div className="card shadow p-4" style={{ width: "400px" }}>
-                <h3 className="text-center mb-4">Login</h3>
+                <h3 className="text-center">Sign up</h3>
 
                 {error && (
                     <div className="alert alert-danger">
@@ -52,7 +52,30 @@ export const LoginPage = () => {
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
+
+                    <div className="mb-3 mt-3">
+                        <label className="form-label">First name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-3 mt-3">
+                        <label className="form-label">Last name</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="mb-3 mt-3">
                         <label className="form-label">Email</label>
                         <input
                             type="email"
@@ -79,8 +102,14 @@ export const LoginPage = () => {
                         className="btn btn-primary w-100"
                         disabled={isLoading}
                     >
-                        {isLoading ? "Đang đăng nhập..." : "Login"}
+                        {isLoading ? 
+                        <div className="spinner-border text-light" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div> : "Sign up"}
                     </button>
+                    <div className="mt-2">
+                        <span>Already have account? <Link to={`/login`}>Sign in</Link></span>
+                    </div>
                 </form>
             </div>
         </div>

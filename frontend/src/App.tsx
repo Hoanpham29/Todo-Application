@@ -4,7 +4,10 @@ import { Navbar } from "./layout/NavbarAndFooter/Navbar";
 import { Slidebar } from "./layout/NavbarAndFooter/Slidebar";
 import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
 import { TodoPage } from "./layout/TodoPage/TodoPage";
-import { LoginPage } from "./layout/LoginPage/Loginpage";
+import { LoginPage } from "./layout/AuthPage/Loginpage";
+import { RegisterPage } from "./layout/AuthPage/Registerpage";
+import { Adminpage } from "./layout/AdminPage/Adminpage";
+import { Changepasswordpage } from "./layout/ChangePasswordPage/Changepasswordpage";
 
 export const App = () => {
   const [open, setOpen] = useState(false);
@@ -18,10 +21,15 @@ export const App = () => {
         <Route path="/login">
           <LoginPage />
         </Route>
+        <Route path="/register">
+          <RegisterPage />
+        </Route>
+
         <div className="d-flex flex-column vh-100">
           <Navbar toggle={() => setOpen(prev => !prev)} />
 
           <div className="d-flex flex-grow-1 position-relative">
+            
             <div
               className="border-end bg-white"
               style={{
@@ -64,6 +72,12 @@ export const App = () => {
               </Route>
               <Route exact path="/home">
                 <HomePage setRefresh={setRefresh} refresh={refresh} />
+              </Route>
+              <Route exact path="/admin">
+                <Adminpage />
+              </Route>
+              <Route exact path="/profile">
+                <Changepasswordpage />
               </Route>
               <Route path="/todos/:id">
                 <TodoPage setRefresh={setRefresh} />

@@ -119,7 +119,10 @@ export const Slidebar: React.FC<{ open: boolean; refresh: boolean }> = ({ open, 
               onClick={() => setActiveIndex(index)}
             >
               <div className="d-flex justify-content-between">
-                <strong>{todo.title}</strong>
+                <strong>{todo.title} 
+                  {todo.complete? <i className="bi bi-check-all"></i> : ""}
+                </strong>
+
                 <small>{formatTodoDate(todo.created_at)}</small>
               </div>
               <div className="small">{todo.description}</div>

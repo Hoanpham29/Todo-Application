@@ -83,13 +83,13 @@ export const NewTodoForm: React.FC<{addTodo: Function; onSuccess: Function}> = (
                             <div className="d-flex align-items-center">
 
                                 <button
-                                    className="btn bg-secondary bg-opacity-10"
+                                    className="btn bg-secondary bg-opacity-10 w-100"
                                     type="button"
                                     data-bs-toggle="dropdown"
                                 >
                                     <span style={{ fontSize: 20 }}> {priority} </span>
                                 </button>
-                                <ul className="dropdown-menu" style={{ minWidth: "110px", width: "110px" }}>
+                                <ul className="dropdown-menu w-100" style={{ minWidth: "110px", width: "110px" }}>
                                     <li>
                                         <button
                                             type="button"
